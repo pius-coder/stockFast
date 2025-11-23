@@ -1,0 +1,106 @@
+# Diagramme d'Objets - Exemple d'Instance stockFast
+
+```plantuml
+@startuml
+title Diagramme d'Objets - Exemple Instance stockFast
+
+object "Admin001" as admin {
+  id = "usr_123"
+  name = "Ismael KOFFI"
+  email = "ismael@stockfast.cm"
+  role = "ADMIN"
+  createdAt = "2025-11-20"
+}
+
+object "Vendor001" as vendor {
+  id = "usr_456"
+  name = "Marie NGUYEN"
+  email = "marie@stockfast.cm"
+  role = "VENDOR"
+  createdAt = "2025-11-21"
+}
+
+object "Product001" as product {
+  id = "prod_789"
+  name = "iPhone 15 Pro"
+  brand = "Apple"
+  model = "iPhone 15 Pro 256GB"
+  purchasePrice = "750000"
+  sellingPrice = "850000"
+  imei = "356726052345678"
+  availableStock = 15
+  minStockLevel = 5
+  category = "PHONE"
+  status = "ACTIVE"
+}
+
+object "QRCode001" as qr {
+  id = "qr_123"
+  productId = "prod_789"
+  code = "SF_QR_789_20251123_001"
+  imageUrl = "/qrcodes/QR_789.png"
+  isActive = true
+  generatedAt = "2025-11-23 10:30:00"
+}
+
+object "Sale001" as sale {
+  id = "sale_111"
+  productId = "prod_789"
+  quantity = 2
+  unitPrice = "850000"
+  totalAmount = "1700000"
+  paymentMethod = "CASH"
+  customerName = "Jean DUPONT"
+  customerPhone = "+237-6-12-34-56-78"
+  receiptNumber = "RCPT_20251123_001"
+  soldBy = "usr_456"
+  soldAt = "2025-11-23 14:25:00"
+}
+
+object "StockMovement001" as stock_move {
+  id = "stock_001"
+  productId = "prod_789"
+  type = "SALE"
+  quantity = 2
+  previousStock = 17
+  newStock = 15
+  reason = "Vente client Jean DUPONT"
+  performedBy = "usr_456"
+  referenceId = "sale_111"
+  createdAt = "2025-11-23 14:25:15"
+}
+
+object "StockAlert001" as alert {
+  id = "alert_001"
+  productId = "prod_789"
+  type = "LOW_STOCK"
+  threshold = 5
+  currentStock = 15
+  isActive = true
+  createdAt = "2025-11-23 14:25:20"
+}
+
+object "AuditLog001" as audit {
+  id = "audit_001"
+  userId = "usr_456"
+  action = "SALE_CREATED"
+  entity = "Sale"
+  entityId = "sale_111"
+  changes = {"quantity": 2, "totalAmount": "1700000"}
+  ipAddress = "192.168.1.100"
+  createdAt = "2025-11-23 14:25:10"
+}
+
+' Relations d'instances
+admin --> product : created
+vendor --> product : managed
+product --> qr : has_qrcode
+product --> sale : sold_as
+product --> stock_move : has_movement
+product --> alert : triggers
+vendor --> sale : performed
+vendor --> stock_move : performed
+vendor --> audit : generated
+sale --> stock_move : triggers
+
+@enduml

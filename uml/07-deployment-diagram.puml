@@ -1,0 +1,87 @@
+# Diagramme de Déploiement - Infrastructure stockFast
+
+```plantuml
+@startuml
+title Diagramme de Déploiement - Infrastructure stockFast
+
+node "Serveur Web (Production)" {
+  artifact "Application Next.js" as next_app {
+    file "dist/" as dist
+    file "public/" as public_files
+    file "next.config.js" as next_config
+  }
+
+  artifact "Serveur Node.js" as node_server {
+    file "package.json" as package_json
+    file "server.js" as server_js
+  }
+}
+
+node "Base de Données" {
+  artifact "PostgreSQL" as postgres {
+    file "stockfast_db" as stockfast_db
+    file "users" as users_table
+    file "products" as products_table
+    file "sales" as sales_table
+    file "stock_movements" as stock_table
+  }
+}
+
+node "Stockage Fichier" {
+  artifact "Serveur Web" as web_server {
+    file "qr-codes/" as qr_codes_dir
+    file "product-images/" as images_dir
+    file "receipts/" as receipts_dir
+  }
+}
+
+node "Service Email" {
+  component "SMTP Server" as smtp
+  component "Email Queue" as email_queue
+}
+
+node "Monitoring" {
+  component "Application Monitoring" as monitoring
+  component "Log Management" as logs
+  component "Performance Analytics" as analytics
+}
+
+node "Client Devices" {
+  artifact "Navigateur Web" as browser {
+    file "Frontend Interface" as frontend
+    file "QR Scanner" as qr_scanner_component
+  }
+
+  artifact "Mobile App" as mobile_app {
+    file "Scanner QR-Code" as mobile_scanner
+    file "Interface Vente" as mobile_sales
+  }
+}
+
+node "APIs Externes" {
+  component "Payment Gateway" as payment_api
+  component "SMS Service" as sms_api
+  component "Cloud Storage" as cloud_storage
+}
+
+' Connexions
+browser --> next_app : HTTPS
+mobile_app --> next_app : HTTPS/REST API
+
+next_app --> postgres : Database Connection
+next_app --> web_server : File Storage
+next_app --> smtp : Email Service
+next_app --> payment_api : Payment Processing
+next_app --> sms_api : SMS Notifications
+
+next_app --> monitoring : Health Checks
+next_app --> logs : Log Streaming
+next_app --> analytics : Performance Data
+
+postgres --> cloud_storage : Backup
+
+' Déploiement
+node_server -[hidden]-> next_app : Installed together
+web_server -[hidden]-> next_app : Same server
+
+@enduml

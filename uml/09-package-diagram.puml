@@ -1,0 +1,158 @@
+# Diagramme de Package - Organisation Module stockFast
+
+```plantuml
+@startuml
+title Diagramme de Package - Organisation Module stockFast
+
+package "Frontend" {
+  package "Pages" {
+    [Dashboard]
+    [Products]
+    [Sales]
+    [Inventory]
+    [Reports]
+    [Auth]
+  }
+
+  package "Components" {
+    [UI Components]
+    [Product Forms]
+    [Sale Interface]
+    [QR Scanner]
+    [Charts]
+    [Alerts]
+  }
+
+  package "Hooks" {
+    useAuth
+    useProducts
+    useSales
+    useStock
+    useReports
+  }
+
+  package "Utils" {
+    formatters
+    validators
+    constants
+  }
+}
+
+package "Backend" {
+  package "API Routes" {
+    (/api/auth/*)
+    (/api/products/*)
+    (/api/sales/*)
+    (/api/stock/*)
+    (/api/qrcode/*)
+    (/api/reports/*)
+  }
+
+  package "Services" {
+    ProductService
+    QrCodeService
+    SaleService
+    StockService
+    NotificationService
+    ReportService
+    AuthService
+  }
+
+  package "Middleware" {
+    auth
+    validation
+    errorHandler
+    rateLimit
+  }
+}
+
+package "Database" {
+  package "Models" {
+    User
+    Product
+    Sale
+    StockMovement
+    QRCode
+    StockAlert
+    AuditLog
+  }
+
+  package "Migrations" {
+    init_users
+    init_products
+    init_sales
+    init_stock
+  }
+
+  package "Seeds" {
+    admin_user
+    sample_products
+    sample_sales
+  }
+}
+
+package "Shared" {
+  package "Types" {
+    UserTypes
+    ProductTypes
+    SaleTypes
+    StockTypes
+  }
+
+  package "Constants" {
+    routes
+    messages
+    statuses
+    roles
+  }
+
+  package "Utils" {
+    dateUtils
+    mathUtils
+    stringUtils
+  }
+}
+
+package "External" {
+  package "Libraries" {
+    prisma
+    better-auth
+    qrcode
+    jspdf
+    tailwindcss
+  }
+
+  package "Services" {
+    email-service
+    sms-service
+    payment-gateway
+    storage-service
+  }
+}
+
+' Relations entre packages
+Frontend.Pages --> Frontend.Components : Uses
+Frontend.Components --> Frontend.Hooks : Uses
+Frontend.Hooks --> Backend.API : Calls
+Frontend.Hooks --> Database.Models : Accesses
+
+Backend.API --> Backend.Services : Delegates
+Backend.Services --> Database.Models : CRUD
+Backend.Middleware --> Backend.Services : Wraps
+
+Database.Models --> Database.Migrations : Generated from
+Database.Models --> Database.Seeds : Populated by
+
+Shared.Types --> Backend.Models : Type definitions
+Shared.Types --> Frontend.Components : Props types
+Shared.Constants --> Backend.Services : Configuration
+
+External.Libraries --> Backend.Services : Integrated in
+External.Services --> Backend.Services : API calls to
+
+' Dépendances cross-cutting
+AuthService ..> Shared.Types : Dependencies
+NotificationService ..> External.Services : Uses
+ReportService ..> Shared.Constants : Uses
+
+@enduml

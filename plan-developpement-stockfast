@@ -1,0 +1,285 @@
+# Plan de Développement stockFast - Application de Gestion de Stocks avec QR-Code
+
+## Vue d'ensemble du Projet
+
+### Objectif Principal
+
+Développer une application web complète de gestion de stocks pour une boutique de vente de téléphones, avec **génération et lecture de QR-codes** pour une gestion rapide et sécurisée.
+
+### Technologies Adaptées au Stack Actuel
+
+- **Frontend** : Next.js 16 + React 19 + TypeScript (déjà en place)
+- **Backend** : API Routes Next.js (remplace ASP.NET Core)
+- **Base de données** : PostgreSQL avec Prisma (remplace SQL Server)
+- **QR-Code** : qrcode.js (librairie JavaScript)
+- **Styling** : TailwindCSS + composants UI (déjà en place)
+
+## 📋 Plan de Développement par Phases
+
+### Phase 1: Infrastructure et Modèle de Données (1 semaine)
+
+- [ ] Configuration base de données PostgreSQL
+- [ ] Schéma Prisma pour les entités métier
+- [ ] Configuration authentification JWT
+- [ ] Setup architecture Clean Code
+
+#### Entités à Créer :
+
+```typescript
+// src/entities/
+├── Product.ts          # Produits (téléphones, accessoires)
+├── Stock.ts            # Gestion des niveaux de stock
+├── Sale.ts             # Ventes et transactions
+├── User.ts             # Utilisateurs et rôles
+├── QRCode.ts           # QR-codes générés
+└── AuditLog.ts         # Journal d'activité
+```
+
+### Phase 2: Gestion des Produits (1 semaine)
+
+- [ ] CRUD complet des produits
+- [ ] Upload et gestion des images
+- [ ] Filtrage et recherche avancée
+- [ ] Validation des données
+
+#### Fonctionnalités Produits :
+
+- ✅ Nom, marque/modèle, prix achat/vente, IMEI
+- ✅ Stock disponible, description, images
+- ✅ Recherche par marque, prix, état stock, IMEI
+- ✅ Modification et suppression sécurisée
+
+### Phase 3: Système QR-Code (1 semaine)
+
+- [ ] Génération automatique de QR-codes
+- [ ] Téléchargement en PNG/JPG
+- [ ] Impression sur étiquettes
+- [ ] Historique des QR-codes
+
+#### Spécifications QR-Code :
+
+- Contient : ID produit + IMEI + lien fiche produit
+- Génération à l'ajout du produit
+- Base64 storage en base de données
+- API pour lecture/scan
+
+### Phase 4: Lecture et Exploitation QR-Code (3 jours)
+
+- [ ] Interface de scan QR-code
+- [ ] Redirection automatique fiche produit
+- [ ] Vérification stock en temps réel
+- [ ] Processus de vente via scan
+
+### Phase 5: Gestion des Ventes (1 semaine)
+
+- [ ] Interface de vente
+- [ ] Génération reçu PDF
+- [ ] Mise à jour automatique stock
+- [ ] Historique des transactions
+
+#### Processus Vente :
+
+1. Scan QR-code produit
+2. Sélection quantité
+3. Choix moyen de paiement
+4. Génération reçu PDF
+5. Mise à jour stock automatique
+
+### Phase 6: Gestion de Stock Avancée (1 semaine)
+
+- [ ] Alertes stock faible
+- [ ] Notifications temps réel
+- [ ] Historique des mouvements
+- [ ] Inventaire via QR-code
+
+#### Système d'Alertes :
+
+- Stock minimum configurable
+- Notifications email/SMS
+- Dashboard indicateurs visuels
+
+### Phase 7: Tableau de Bord (Dashboard) (1 semaine)
+
+- [ ] KPIs en temps réel
+- [ ] Graphiques de ventes
+- [ ] Statistiques produits
+- [ ] Stocks critiques
+
+#### Métriques à Afficher :
+
+- Total ventes journalière/mensuelle
+- Meilleures ventes
+- Bénéfices
+- Produits en rupture
+- QR-codes générés
+
+### Phase 8: Gestion Utilisateurs et Sécurité (3 jours)
+
+- [ ] Système d'authentification JWT
+- [ ] Rôles et permissions
+- [ ] Journal d'activité
+- [ ] Chiffrement données sensibles
+
+#### Rôles Utilisateurs :
+
+- **Administrateur** : Accès complet
+- **Caissier/Vendeur** : Ventes et consultation
+- **Gestionnaire Stock** : Gestion produits et inventaire
+
+### Phase 9: Sécurité et Sauvegarde (3 jours)
+
+- [ ] Chiffrement IMEI et prix
+- [ ] Sauvegarde automatique BDD
+- [ ] Export CSV/Excel
+- [ ] Protection accès non autorisé
+
+### Phase 10: Tests et Optimisation (1 semaine)
+
+- [ ] Tests unitaires complets
+- [ ] Tests d'intégration
+- [ ] Optimisation performance
+- [ ] Tests utilisateur
+
+## 🛠️ Architecture Technique
+
+### Structure du Projet
+
+```
+stockFast/
+├── app/                    # Next.js App Router
+│   ├── api/               # API Routes
+│   │   ├── products/      # CRUD produits
+│   │   ├── sales/         # Gestion ventes
+│   │   ├── qrcode/        # QR-codes
+│   │   └── auth/          # Authentification
+│   ├── dashboard/         # Tableau de bord
+│   ├── products/          # Gestion produits
+│   ├── sales/             # Interface ventes
+│   └── inventory/         # Inventaire
+├── src/
+│   ├── entities/          # Modèles métier
+│   ├── services/          # Logique métier
+│   ├── components/        # Composants réutilisables
+│   └── utils/             # Utilitaires
+├── prisma/               # Schéma base de données
+└── public/
+    └── qrcodes/          # Images QR-codes générés
+```
+
+### Services Clés
+
+```typescript
+// src/services/
+├── ProductService.ts      # Gestion produits
+├── QrCodeService.ts       # Génération QR-codes
+├── SaleService.ts         # Traitement ventes
+├── StockService.ts        # Gestion stock
+├── NotificationService.ts # Alertes
+└── ReportService.ts       # Rapports
+```
+
+## 📊 Spécifications Fonctionnelles Détaillées
+
+### 1. Gestion des Produits
+
+- **CRUD complet** : Ajout, modification, suppression
+- **Champs obligatoires** : Nom, marque, IMEI, prix
+- **Images** : Upload multiple, redimensionnement automatique
+- **Recherche** : Filtres avancés par tous les critères
+
+### 2. Système QR-Code
+
+- **Génération** : Automatique à l'ajout produit
+- **Contenu** : ID unique + IMEI + URL fiche
+- **Export** : PNG haute qualité pour impression
+- **Historique** : Traçabilité complète
+
+### 3. Processus de Vente
+
+- **Scan QR** : Identification rapide produit
+- **Interface** : Sélecteur quantité, moyens de paiement
+- **Reçu PDF** : Génération automatique détaillée
+- **Stock** : Mise à jour temps réel
+
+### 4. Gestion Stock
+
+- **Alertes** : Stock minimum configurable
+- **Historique** : Toutes les transactions
+- **Inventaire** : Scan QR pour vérification
+- **Rapports** : Mouvements détaillés
+
+### 5. Dashboard Analytics
+
+- **KPIs temps réel** : Ventes, stock, bénéfices
+- **Graphiques** : Tendances, comparaisons
+- **Alertes** : Stocks critiques, objectifs
+- **Export** : Données CSV/PDF
+
+## 🔒 Sécurité
+
+### Authentification & Autorisation
+
+- JWT tokens avec refresh automatique
+- Rôles granulaires par fonctionnalité
+- Session timeout automatique
+- Logs de sécurité détaillés
+
+### Chiffrement des Données
+
+- IMEI chiffrés en base
+- Prix d'achat sécurisés
+- Données sensibles cryptées
+- HTTPS obligatoire
+
+### Sauvegarde & Récupération
+
+- Backup automatique quotidien
+- Points de restauration
+- Test de récupération régulier
+- Plan de reprise d'activité
+
+## 📈 Métriques de Performance
+
+### Objectifs Techniques
+
+- **Temps de réponse** : < 2 secondes
+- **Disponibilité** : > 98%
+- **Scalabilité** : 10 000+ produits
+- **Sécurité** : Audit complet
+
+### KPIs Business
+
+- **Réduction erreurs** : > 80%
+- **Temps inventaire** : -60%
+- **Satisfaction utilisateur** : > 90%
+- **ROI** : Retour investissement 6 mois
+
+## 💰 Budget et Planning
+
+### Phase Développement (8 semaines)
+
+- **Semaine 1-2** : Infrastructure + Produits
+- **Semaine 3-4** : QR-Code + Ventes
+- **Semaine 5-6** : Stock + Dashboard
+- **Semaine 7-8** : Sécurité + Tests
+
+### Ressources Requises
+
+- **Développeur Fullstack** : 8 semaines
+- **Designer UI/UX** : 2 semaines
+- **Testeur** : 1 semaine
+- **DevOps** : 1 semaine
+
+## 🎯 Prochaines Étapes Immédiates
+
+1. **Validation architecture** avec l'équipe
+2. **Setup environnement** développement
+3. **Création schéma base de données**
+4. **Configuration authentification**
+5. **Premier prototype** gestion produits
+
+---
+
+## Statut: Phase de Planification Complète ✅
+
+**Ce plan transforme stockFast en application professionnelle de gestion de stocks avec QR-code, respectant intégralement le cahier des charges tout en optimisant le stack technique existant.**

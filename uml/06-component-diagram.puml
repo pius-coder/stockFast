@@ -1,0 +1,101 @@
+# Diagramme de Composants - Architecture stockFast
+
+```plantuml
+@startuml
+title Diagramme de Composants - Application stockFast
+
+package "Frontend (Next.js)" {
+  component "Dashboard\n(React)" as dashboard
+  component "Gestion Produits\n(React)" as product_mgmt
+  component "Interface Vente\n(React)" as sales_interface
+  component "Scanner QR-Code\n(React)" as qr_scanner
+  component "Tableau de Bord\n(React)" as reports
+}
+
+package "Backend APIs (Next.js API Routes)" {
+  component "API Produits\n(/api/products)" as api_products
+  component "API Ventes\n(/api/sales)" as api_sales
+  component "API QR-Codes\n(/api/qrcode)" as api_qr
+  component "API Stock\n(/api/stock)" as api_stock
+  component "API Auth\n(/api/auth)" as api_auth
+  component "API Rapports\n(/api/reports)" as api_reports
+}
+
+package "Services Métier" {
+  component "ProductService" as product_service
+  component "QrCodeService" as qr_service
+  component "SaleService" as sale_service
+  component "StockService" as stock_service
+  component "NotificationService" as notification_service
+  component "ReportService" as report_service
+}
+
+package "Couche Données" {
+  component "Prisma ORM" as prisma
+  component "PostgreSQL\nDatabase" as database
+}
+
+package "Authentification" {
+  component "BetterAuth" as auth
+  component "JWT Tokens" as jwt
+}
+
+package "Externe" {
+  component "QRCode Generator\n(qrcode.js)" as qr_generator
+  component "PDF Generator\n(jsPDF)" as pdf_generator
+  component "Email Service\n(Nodemailer)" as email_service
+}
+
+' Relations Frontend -> API
+dashboard --> api_products : REST
+dashboard --> api_sales : REST
+dashboard --> api_stock : REST
+dashboard --> api_auth : REST
+
+product_mgmt --> api_products : REST
+product_mgmt --> api_qr : REST
+
+sales_interface --> api_sales : REST
+sales_interface --> api_qr : REST
+sales_interface --> api_stock : REST
+
+qr_scanner --> api_qr : REST
+
+reports --> api_reports : REST
+reports --> api_stock : REST
+
+' Relations API -> Services
+api_products --> product_service
+api_products --> qr_service
+
+api_sales --> sale_service
+api_sales --> stock_service
+
+api_qr --> qr_service
+
+api_stock --> stock_service
+api_stock --> notification_service
+
+api_reports --> report_service
+
+' Relations Services -> Données
+product_service --> prisma
+qr_service --> prisma
+sale_service --> prisma
+stock_service --> prisma
+notification_service --> prisma
+report_service --> prisma
+
+' Relations Prisma -> Database
+prisma --> database
+
+' Relations Auth
+api_auth --> auth
+auth --> jwt
+
+' Relations Externes
+qr_service --> qr_generator
+sale_service --> pdf_generator
+notification_service --> email_service
+
+@enduml

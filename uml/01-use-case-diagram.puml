@@ -1,0 +1,76 @@
+# Diagramme de Cas d'Utilisation - stockFast
+
+```plantuml
+@startuml
+title Cas d'Utilisation - Application Gestion de Stock stockFast
+
+actor "Administrateur" as admin
+actor "Vendeur/Caissier" as vendor
+actor "Gestionnaire Stock" as stock_manager
+actor "Client" as client
+
+package "Gestion Produits" {
+  usecase "UC01: Ajouter produit" as UC01
+  usecase "UC02: Modifier produit" as UC02
+  usecase "UC03: Supprimer produit" as UC03
+  usecase "UC04: Rechercher produit" as UC04
+  usecase "UC05: Générer QR-Code" as UC05
+}
+
+package "Gestion Stock" {
+  usecase "UC06: Voir stock" as UC06
+  usecase "UC07: Ajuster stock" as UC07
+  usecase "UC08: Recevoir alerte" as UC08
+  usecase "UC09: Effectuer inventaire" as UC09
+}
+
+package "Gestion Ventes" {
+  usecase "UC10: Scanner QR-Code" as UC10
+  usecase "UC11: Effectuer vente" as UC11
+  usecase "UC12: Générer reçu PDF" as UC12
+  usecase "UC13: Voir historique ventes" as UC13
+}
+
+package "Tableau de Bord" {
+  usecase "UC14: Voir KPIs" as UC14
+  usecase "UC15: Voir graphiques" as UC15
+  usecase "UC16: Exporter données" as UC16
+}
+
+package "Authentification" {
+  usecase "UC17: Se connecter" as UC17
+  usecase "UC18: Se déconnecter" as UC18
+  usecase "UC19: Gérer profils" as UC19
+}
+
+admin --> UC01
+admin --> UC02
+admin --> UC03
+admin --> UC19
+admin --> UC16
+admin --> UC14
+
+vendor --> UC04
+vendor --> UC06
+vendor --> UC10
+vendor --> UC11
+vendor --> UC12
+vendor --> UC13
+vendor --> UC17
+
+stock_manager --> UC01
+stock_manager --> UC02
+stock_manager --> UC04
+stock_manager --> UC05
+stock_manager --> UC06
+stock_manager --> UC07
+stock_manager --> UC08
+stock_manager --> UC09
+stock_manager --> UC14
+stock_manager --> UC16
+stock_manager --> UC17
+
+client --> UC10
+client --> UC04
+
+@enduml

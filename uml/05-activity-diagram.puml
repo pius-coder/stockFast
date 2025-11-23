@@ -1,0 +1,109 @@
+# Diagramme d'Activité - Processus de Gestion de Stock
+
+```plantuml
+@startuml
+title Diagramme d'Activité - Gestion de Stock stockFast
+
+|Administrateur| as admin
+|Vendeur| as vendor
+ Gestionnaire Stock | as stock_mgr
+|System| as system
+
+start
+
+:Connexion utilisateur;
+
+if (Authentification réussie?) then (Oui)
+  :Afficher dashboard;
+
+  split
+    :Gérer produits;
+  split again
+    :Effectuer vente;
+  split again
+    :Générer rapport;
+  split again
+    :Ajuster stock;
+  end split
+
+else (Non)
+  :Erreur connexion;
+  stop
+endif
+
+|Gérer Produits|
+note right
+- Ajouter nouveau produit
+- Modifier informations
+- Supprimer produit
+- Générer QR-Code
+end note
+
+|Effectuer Vente|
+note right
+- Scanner QR-Code
+- Sélectionner quantité
+- Choisir paiement
+- Générer reçu PDF
+- Mettre à jour stock
+end note
+
+|Générer Rapport|
+note right
+- KPI ventes
+- État stock
+- Alertes actives
+- Statistiques
+end note
+
+|Ajuster Stock|
+note right
+- Entrée de stock
+- Sortie de stock
+- Ajustement manuel
+- Réapprovisionnement
+end note
+
+|Vendeur|
+:Scan QR-Code produit;
+:System|
+:Rechercher produit;
+
+if (Produit trouvé?) then (Oui)
+  :Afficher informations;
+
+  :Sélectionner quantité;
+  :Choisir moyen paiement;
+
+  :Créer vente;
+
+  :Générer mouvement stock;
+  :Mettre à jour stock;
+  :Créer alerte si besoin;
+  :Générer reçu PDF;
+
+  :Afficher confirmation;
+
+else (Non)
+  :Afficher erreur QR-Code;
+endif
+
+|Gestionnaire Stock|
+:Consulter alertes;
+:System|
+:Vérifier seuils stock;
+
+if (Stock faible?) then (Oui)
+  :Créer alerte;
+  :Notifier responsable;
+
+  :Réapprovisionner si nécessaire;
+  :Mettre à jour niveau stock;
+else (Non)
+  :Continuer surveillance;
+endif
+
+:Fin du processus;
+
+stop
+@enduml

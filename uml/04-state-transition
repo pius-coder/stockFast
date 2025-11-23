@@ -1,0 +1,63 @@
+# Diagramme d'État-Transition - Gestion des Stocks
+
+```plantuml
+@startuml
+title Diagramme d'État-Transition - Stock des Produits
+
+state "Stock Normal" as normal {
+  [*] --> available : Stock >= MinLevel
+
+  available --> low_stock : Stock < MinLevel
+
+  state "Stock Faible" as low_stock {
+    [*] --> awaiting_replenishment : Notification envoyée
+
+    awaiting_replenishment --> out_of_stock : Stock = 0
+    awaiting_replenishment --> available : Réapprovisionnement
+
+    out_of_stock --> low_stock : Réapprovisionnement partiel
+  }
+
+  state "En Rupture" as out_of_stock {
+    [*] --> awaiting_stock : Aucun stock disponible
+    awaiting_stock --> low_stock : Nouveau stock reçu
+  }
+}
+
+normal -[hidden]-> low_stock
+low_stock -[hidden]-> out_of_stock
+
+state "Produit Inactif" as inactive {
+  [*] --> discontinued : Arrêt de vente
+  discontinued --> [*]
+}
+
+state "En Mouvement" as movement {
+  [*] --> processing : Traitement en cours
+
+  processing --> adjustment : Ajustement manuel
+  processing --> sale : Vente
+  processing --> purchase : Achat
+  processing --> return : Retour
+  processing --> damage : Endommagé
+
+  adjustment --> [*] : Ajustement terminé
+  sale --> [*] : Vente finalisée
+  purchase --> [*] : Stock réceptionné
+  return --> [*] : Retour traité
+  damage --> [*] : Produit détruit
+}
+
+' Transitions principales
+[*] --> normal : Produit créé
+normal --> inactive : Produit désactivé
+low_stock --> normal : Réapprovisionnement
+out_of_stock --> normal : Réapprovisionnement complet
+movement --> normal : Opération terminée
+
+' Événements externes
+normal -> movement : Événement de mouvement
+low_stock -> movement : Opération effectuée
+out_of_stock -> movement : Réapprovisionnement
+
+@enduml

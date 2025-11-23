@@ -1,0 +1,508 @@
+{
+	"extends": ["next/core-web-vitals", "next/typescript"],
+	"plugins": ["@typescript-eslint", "import", "unused-imports", "functional"],
+	"rules": {
+		// ======== PRINCIPES CLEAN CODE JAVASCRIPT ========
+
+		// === VARIABLES & NOMMAGE ===
+		// Utiliser des noms significatifs et prononçables
+		"@typescript-eslint/naming-convention": [
+			"error",
+			{
+				"selector": "variable",
+				"format": ["camelCase"],
+				"leadingUnderscore": "forbid",
+				"trailingUnderscore": "forbid"
+			},
+			{
+				"selector": "function",
+				"format": ["camelCase"],
+				"leadingUnderscore": "forbid",
+				"trailingUnderscore": "forbid"
+			},
+			{
+				"selector": "typeAlias",
+				"format": ["PascalCase"]
+			},
+			{
+				"selector": "interface",
+				"format": ["PascalCase"]
+			},
+			{
+				"selector": "enum",
+				"format": ["PascalCase"]
+			},
+			{
+				"selector": "const",
+				"modifiers": ["exported"],
+				"format": ["UPPER_CASE", "camelCase"]
+			},
+			{
+				"selector": "const",
+				"format": ["camelCase"]
+			}
+		],
+
+		// Éviter les variables sans signification et incohérence
+		"no-useless-rename": "error",
+		"no-constant-binary-expression": "error",
+		"no-duplicate-imports": "error",
+
+		// Préférer const aux autres déclarations
+		"prefer-const": "error",
+		"no-var": "error",
+
+		// Éviter les magic numbers (utiliser des constantes nommées)
+		"@typescript-eslint/no-magic-numbers": [
+			"error",
+			{
+				"ignore": [-1, 0, 1, 2],
+				"ignoreArrayIndexes": true,
+				"enforceConst": true,
+				"detectObjects": true
+			}
+		],
+
+		// === FONCTIONS ===
+		// Limiter le nombre de paramètres (max 2-3)
+		"@typescript-eslint/prefer-readonly-parameter-types": [
+			"error",
+			{
+				"checkParameterProperties": true,
+				"ignoreInferredTypes": false
+			}
+		],
+
+		// Préférer les fonctions pures (sans side effects)
+		"@typescript-eslint/no-misused-promises": "error",
+		"functional/prefer-readonly-type": "error",
+		"functional/immutable-data": [
+			"error",
+			{
+				"ignoreReadonlyFields": true,
+				"ignoreLocalVariables": false,
+				"ignoreIife": true
+			}
+		],
+
+		// Les fonctions doivent faire une seule chose
+		"max-lines-per-function": [
+			"error",
+			{
+				"max": 30,
+				"skipComments": true,
+				"skipBlankLines": true
+			}
+		],
+
+		// Préférer les fonctions fléchées pour les callbacks simples
+		"prefer-arrow-callback": "error",
+
+		// Utiliser les valeurs par défaut au lieu des conditionnels
+		"@typescript-eslint/prefer-optional-chain": "error",
+		"@typescript-eslint/prefer-nullish-coalescing": "error",
+
+		// Éviter les paramètres boolean (flags)
+		"@typescript-eslint/no-inferrable-types": "error",
+		"@typescript-eslint/strict-boolean-expressions": [
+			"error",
+			{
+				"allowString": false,
+				"allowNumber": false,
+				"allowNullableObject": false,
+				"allowNullableBoolean": false,
+				"allowNullableString": false,
+				"allowNullableNumber": false,
+				"allowAny": false,
+				"allowRuleToRunWithoutSafeIntlCheckProducingIntlData": false
+			}
+		],
+
+		// Éviter les effets de bord (side effects)
+		"functional/no-conditional-statements": [
+			"error",
+			{
+				"allowSwitch": false,
+				"allowIIFE": true,
+				"ignoreExternalDependencies": false
+			}
+		],
+		"functional/no-mutations": [
+			"error",
+			{
+				"ignoreExternalDependencies": false,
+				"ignorePattern": "^_",
+				"includeLocalVariables": false
+			}
+		],
+
+		// Éviter les mutations globales
+		"no-extend-native": "error",
+		"no-implicit-globals": "error",
+		"no-global-assign": "error",
+
+		// Préférer la programmation fonctionnelle
+		"functional/prefer-tacit": "warn",
+		"functional/functional-parameters": [
+			"error",
+			{
+				"max-arity": 3,
+				"ignore-IIFE": true
+			}
+		],
+
+		// === OBJETS & STRUCTURES DE DONNÉES ===
+		// Utiliser getters/setters
+		"@typescript-eslint/explicit-member-accessibility": [
+			"error",
+			{
+				"accessibility": "explicit",
+				"overrides": {
+					"constructors": "no-public"
+				}
+			}
+		],
+
+		// Préférer l'immutabilité
+		"@typescript-eslint/prefer-readonly": "error",
+		"@typescript-eslint/strict-boolean-expressions": [
+			"error",
+			{
+				"allowString": false,
+				"allowNumber": false,
+				"allowNullableObject": false,
+				"allowNullableBoolean": false,
+				"allowNullableString": false,
+				"allowNullableNumber": false,
+				"allowAny": false
+			}
+		],
+
+		// Éviter l'encapsulation excessive dans les objets
+		"@typescript-eslint/prefer-literal-enum-member": "error",
+		"@typescript-eslint/prefer-return-this-type": "warn",
+		"functional/prefer-type-literal": "error",
+
+		// === CLASSES & OOP ===
+		// Utiliser ES6+ classes
+		"@typescript-eslint/prefer-literal-enum-member": "error",
+
+		// Méthode chaining support
+		"functional/class-methods-use-this": [
+			"error",
+			{
+				"exceptMethods": ["get", "set", "add", "remove", "has", "is"]
+			}
+		],
+
+		// Préférer composition sur héritage
+		"@typescript-eslint/prefer-nullish-coalescing": "warn",
+		"@typescript-eslint/prefer-optional-chain": "error",
+
+		// === SOLID PRINCIPLES ===
+		// Single Responsibility - Limiter les responsabilités par fonction/classe
+		"max-statements": ["error", 15],
+		"max-statements-per-line": ["error", 1],
+
+		// Open/Closed - Éviter les modifications directes des paramètres
+		"@typescript-eslint/prefer-readonly-parameter-types": "error",
+
+		// Liskov Substitution - Respect des types
+		"@typescript-eslint/prefer-for-of": "error",
+		"@typescript-eslint/prefer-includes": "error",
+
+		// Interface Segregation - Interfaces petites et spécialisées
+		"@typescript-eslint/prefer-for-of": "error",
+
+		// Dependency Inversion - Éviter les dépendances directes
+		"@typescript-eslint/prefer-nullish-coalescing": "error",
+
+		// === ERREUR HANDLING ===
+		// Ne pas ignorer les erreurs capturées
+		"@typescript-eslint/no-floating-promises": "error",
+		"@typescript-eslint/no-floating-promises": "error",
+		"@typescript-eslint/await-thenable": "error",
+		"no-useless-catch": "error",
+
+		// Gestion d'erreur appropriée
+		"no-throw-literal": "error",
+		"prefer-promise-reject-errors": "error",
+
+		// === CONCURRENCE ===
+		// Préférer async/await aux callbacks
+		"@typescript-eslint/require-await": "error",
+		"@typescript-eslint/no-misused-async": "error",
+
+		// Promises правильно используются
+		"@typescript-eslint/no-misused-promises": [
+			"error",
+			{
+				"checksVoidReturn": true,
+				"checksConditionals": true
+			}
+		],
+
+		// === TESTING ===
+		"@typescript-eslint/unbound-method": "error",
+		"@typescript-eslint/unified-signatures": "warn",
+
+		// === COMMENTS & DOCUMENTATION ===
+		"@typescript-eslint/unified-signatures": "warn",
+
+		// Éviter les commentaires inutiles
+		"no-useless-escape": "error",
+		"no-unreachable": "error",
+		"no-unreachable-loop": "error",
+
+		// Prefer explicitness in comments
+		"functional/no-return-void": "error",
+
+		// === FORMAT ===
+		"@typescript-eslint/sort-type-union-intersection-members": "error",
+		"@typescript-eslint/prefer-enum-initializers": "error",
+
+		// === PERMISSIVE RULES ===
+		"prefer-template": "error",
+		"object-shorthand": "error",
+		"prefer-destructuring": [
+			"error",
+			{
+				"array": true,
+				"object": true,
+				"enforceForRenamedProperties": true
+			}
+		],
+
+		// === REDONDANCE & CODE MORT ===
+		"@typescript-eslint/no-unused-vars": [
+			"error",
+			{
+				"argsIgnorePattern": "^_",
+				"varsIgnorePattern": "^_",
+				"caughtErrorsIgnorePattern": "^_",
+				"args": "after-used"
+			}
+		],
+		"no-unused-expressions": "error",
+		"no-undef": "error",
+		"no-debugger": "error",
+		"no-alert": "error",
+		"no-console": [
+			"warn",
+			{
+				"allow": ["warn", "error", "info"]
+			}
+		],
+		"no-implied-eval": "error",
+		"no-new": "error",
+		"no-new-func": "error",
+		"no-new-wrappers": "error",
+		"no-return-assign": ["error", "always"],
+
+		// === PERFORMANCE & OPTIMISATION ===
+		"@typescript-eslint/no-extra-non-null-assertion": "error",
+		"prefer-const": "error",
+		"no-const-assign": "error",
+		"no-dupe-args": "error",
+		"no-dupe-class-members": "error",
+		"no-dupe-keys": "error",
+
+		// === IMPORT/EXPORT ===
+		"@typescript-eslint/no-var-requires": "error",
+		"import/no-duplicates": "error",
+		"import/order": [
+			"error",
+			{
+				"groups": [
+					"builtin",
+					"external",
+					"internal",
+					"parent",
+					"sibling",
+					"index"
+				],
+				"pathGroups": [
+					{
+						"pattern": "@/components/**",
+						"group": "internal",
+						"position": "after"
+					},
+					{
+						"pattern": "@/entities/**",
+						"group": "internal",
+						"position": "after"
+					},
+					{
+						"pattern": "@/common/**",
+						"group": "internal",
+						"position": "after"
+					}
+				],
+				"alphabetize": {
+					"order": "asc"
+				}
+			}
+		],
+		"import/no-cycle": [
+			"error",
+			{
+				"maxDepth": 2,
+				"ignoreExternal": false
+			}
+		],
+		"import/no-self-import": "error",
+		"import/no-webpack-loader-syntax": "error",
+		"import/no-unassigned-import": "error",
+
+		// === REACT SPECIFIC ===
+		"react/prop-types": "off",
+		"react/react-in-jsx-scope": "off",
+		"react-hooks/rules-of-hooks": "error",
+		"react-hooks/exhaustive-deps": [
+			"error",
+			{
+				"additionalHooks": "(useDebounce)"
+			}
+		],
+		"react/display-name": "error",
+		"react/no-unescaped-entities": "error",
+		"react/jsx-key": [
+			"error",
+			{
+				"checkFragmentShorthand": true,
+				"checkKeyMustBeforeSpread": true,
+				"checkReactIsValidImport": true
+			}
+		],
+		"react/jsx-no-duplicate-props": [
+			"error",
+			{
+				"ignoreCase": false
+			}
+		],
+		"react/jsx-no-undef": "error",
+		"react/jsx-no-useless-fragment": "error",
+		"react/jsx-pascal-case": "error",
+		"react/no-access-state-in-setstate": "error",
+		"react/no-array-index-key": "error",
+		"react/no-children-prop": "error",
+		"react/no-danger": "error",
+		"react/no-deprecated": "error",
+		"react/no-direct-mutation-state": "error",
+		"react/no-unescaped-entities": "error",
+		"react/no-unknown-property": "error",
+
+		// === NEXT.JS SPECIFIC ===
+		"@next/next/no-html-link-for-pages": "error",
+
+		// === STRUCTURE & ORGANISATION ===
+		// Limiter la complexité cyclomatique
+		"complexity": ["error", 5],
+
+		// Limiter la profondeur d'imbrication
+		"max-depth": ["error", 3],
+
+		// Limiter la longueur des lignes
+		"max-len": [
+			"error",
+			{
+				"code": 100,
+				"ignoreStrings": true,
+				"ignoreTemplateLiterals": true,
+				"ignoreComments": true,
+				"ignoreUrls": true
+			}
+		],
+
+		// === ADDITIONAL CLEAN CODE RULES ===
+
+		// Encapsulate conditionals
+		"functional/no-conditional-statements": [
+			"error",
+			{
+				"allowSwitch": false,
+				"allowIIFE": true,
+				"ignoreExternalDependencies": true
+			}
+		],
+
+		// Avoid negative conditionals (convertir les conditions négatives en positives)
+		"@typescript-eslint/prefer-nullish-coalescing": "error",
+		"@typescript-eslint/strict-boolean-expressions": [
+			"error",
+			{
+				"allowString": false,
+				"allowNumber": false,
+				"allowNullableObject": false,
+				"allowNullableBoolean": false,
+				"allowNullableString": false,
+				"allowNullableNumber": false,
+				"allowAny": false
+			}
+		],
+
+		// Favor functional programming - éviter les boucles impératives
+		"functional/no-loops": [
+			"error",
+			{
+				"ignore": []
+			}
+		],
+
+		// Avoid global pollution
+		"no-extend-native": "error",
+		"no-implicit-globals": "error",
+
+		// Set default objects with proper patterns
+		"@typescript-eslint/prefer-nullish-coalescing": "error",
+		"@typescript-eslint/prefer-optional-chain": "error",
+
+		// Remove duplicate code patterns
+		"no-duplicate-imports": "error",
+		"no-useless-constructor": "error",
+		"@typescript-eslint/no-unnecessary-condition": "error",
+
+		// Avoid type-checking where possible
+		"@typescript-eslint/strict-boolean-expressions": [
+			"error",
+			{
+				"allowString": false,
+				"allowNumber": false,
+				"allowNullableObject": false,
+				"allowNullableBoolean": false,
+				"allowNullableString": false,
+				"allowNullableNumber": false,
+				"allowAny": false
+			}
+		],
+
+		// Don't over-optimize - trust modern engines
+		"@typescript-eslint/no-extra-semi": "error",
+		"@typescript-eslint/prefer-includes": "error",
+		"@typescript-eslint/prefer-for-of": "error",
+		"@typescript-eslint/prefer-regexp-exec": "error",
+
+		// Remove dead code
+		"no-unreachable": "error",
+		"no-unreachable-loop": "error",
+		"no-sparse-arrays": "error",
+
+		// Method chaining support
+		"@typescript-eslint/no-return-await": "error",
+		"@typescript-eslint/return-await": "error"
+	},
+	"settings": {
+		"react": {
+			"version": "detect"
+		},
+		"import/resolver": {
+			"typescript": {
+				"alwaysTryTypes": true,
+				"project": "./tsconfig.json"
+			}
+		},
+		"functional/configuration": {
+			"version": 18
+		}
+	}
+}

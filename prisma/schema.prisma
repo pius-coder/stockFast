@@ -1,0 +1,241 @@
+// Schéma de base de données Prisma pour stockFast
+// Configuration PostgreSQL avec authentification BetterAuth
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// MODÈLES D'AUTHENTIFICATION (BetterAuth)
+// ============================================================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(VENDOR)
+
+  // Relations BetterAuth
+  accounts Account[]
+  sessions Session[]
+
+  // Relations stockFast
+  products    Product[]
+  sales       Sale[]
+  stockMovements StockMovement[]
+  auditLogs   AuditLog[]
+  alerts      StockAlert[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================================
+// MODÈLES MÉTIER STOCKFAST
+// ============================================================================
+
+model Product {
+  id             String   @id @default(cuid())
+  name           String   @db.VarChar(100)
+  brand          String   @db.VarChar(50)
+  model          String   @db.VarChar(100)
+  purchasePrice  Decimal  @db.Decimal(10, 2)
+  sellingPrice   Decimal  @db.Decimal(10, 2)
+  imei           String   @unique @db.VarChar(15)
+  availableStock Int      @default(0)
+  minStockLevel  Int      @default(5)
+  description    String?  @db.Text
+  images         String[] @default([])
+  category       Category @default(PHONE)
+  status         ProductStatus @default(ACTIVE)
+  createdBy      String
+  updatedBy      String?
+
+  // Relations
+  qrCode       QRCode?
+  sales        Sale[]
+  stockMovements StockMovement[]
+  alerts       StockAlert[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("products")
+}
+
+model QRCode {
+  id         String   @id @default(cuid())
+  productId  String   @unique
+  code       String   @unique
+  imageUrl   String?
+  imageData  String?  @db.Text // Base64 encoded image
+  generatedBy String
+  isActive   Boolean  @default(true)
+  generatedAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("qrcodes")
+}
+
+model Sale {
+  id            String      @id @default(cuid())
+  productId     String
+  quantity      Int
+  unitPrice     Decimal     @db.Decimal(10, 2)
+  totalAmount   Decimal     @db.Decimal(10, 2)
+  paymentMethod PaymentMethod
+  customerName  String?     @db.VarChar(100)
+  customerPhone String?     @db.VarChar(15)
+  receiptNumber String      @unique @db.VarChar(50)
+  soldBy        String
+  soldAt        DateTime    @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("sales")
+}
+
+model StockMovement {
+  id             String          @id @default(cuid())
+  productId      String
+  type           MovementType
+  quantity       Int
+  previousStock  Int
+  newStock       Int
+  reason         String?         @db.VarChar(200)
+  notes          String?         @db.Text
+  performedBy    String
+  referenceId    String? // ID de la vente, achat, etc.
+  createdAt      DateTime        @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("stock_movements")
+}
+
+model StockAlert {
+  id             String       @id @default(cuid())
+  productId      String
+  type           AlertType
+  threshold      Int
+  currentStock   Int
+  isActive       Boolean      @default(true)
+  notifiedAt     DateTime?
+  acknowledgedAt DateTime?
+  acknowledgedBy String?
+  createdAt      DateTime     @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("stock_alerts")
+}
+
+model AuditLog {
+  id         String    @id @default(cuid())
+  userId     String
+  action     String    @db.VarChar(100)
+  entity     String    @db.VarChar(50)
+  entityId   String
+  changes    Json?
+  ipAddress  String?   @db.VarChar(45)
+  userAgent  String?   @db.Text
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// ============================================================================
+// ÉNUMÉRATIONS
+// ============================================================================
+
+enum UserRole {
+  ADMIN        @map("admin")
+  VENDOR       @map("vendor")
+  STOCK_MANAGER @map("stock_manager")
+}
+
+enum Category {
+  PHONE       @map("phone")
+  ACCESSORY   @map("accessory")
+  COMPONENT   @map("component")
+}
+
+enum ProductStatus {
+  ACTIVE       @map("active")
+  INACTIVE     @map("inactive")
+  DISCONTINUED @map("discontinued")
+}
+
+enum MovementType {
+  IN          @map("in")
+  OUT         @map("out")
+  ADJUSTMENT  @map("adjustment")
+  SALE        @map("sale")
+  PURCHASE    @map("purchase")
+  RETURN      @map("return")
+  DAMAGE      @map("damage")
+}
+
+enum AlertType {
+  LOW_STOCK      @map("low_stock")
+  OUT_OF_STOCK   @map("out_of_stock")
+  EXPIRY_SOON    @map("expiry_soon")
+}
+
+enum PaymentMethod {
+  CASH        @map("cash")
+  CARD        @map("card")
+  MOBILE_MONEY @map("mobile_money")
+  BANK_TRANSFER @map("bank_transfer")
+}

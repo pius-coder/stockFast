@@ -1,0 +1,216 @@
+# Diagramme de Classes - stockFast
+
+```plantuml
+@startuml
+title Diagramme de Classes - Application stockFast
+
+package "Package Authentification" {
+  class User {
+    -id: String
+    -name: String
+    -email: String
+    -emailVerified: DateTime
+    -image: String
+    -role: UserRole
+    -createdAt: DateTime
+    -updatedAt: DateTime
+    ---
+    +getName(): String
+    +hasRole(role: UserRole): Boolean
+  }
+
+  class Account {
+    -id: String
+    -userId: String
+    -type: String
+    -provider: String
+    -providerAccountId: String
+    -refresh_token: String
+    -access_token: String
+    -expires_at: Int
+    ---
+  }
+
+  class Session {
+    -id: String
+    -sessionToken: String
+    -userId: String
+    -expires: DateTime
+    ---
+  }
+}
+
+package "Package Métier Stock" {
+  class Product {
+    -id: String
+    -name: String
+    -brand: String
+    -model: String
+    -purchasePrice: Decimal
+    -sellingPrice: Decimal
+    -imei: String
+    -availableStock: Int
+    -minStockLevel: Int
+    -description: String
+    -images: String[]
+    -category: Category
+    -status: ProductStatus
+    -createdBy: String
+    -updatedBy: String
+    -createdAt: DateTime
+    -updatedAt: DateTime
+    ---
+    +getProfit(): Decimal
+    +isLowStock(): Boolean
+    +canSell(quantity: Int): Boolean
+    +generateQRCode(): QRCode
+  }
+
+  class QRCode {
+    -id: String
+    -productId: String
+    -code: String
+    -imageUrl: String
+    -imageData: String
+    -generatedBy: String
+    -isActive: Boolean
+    -generatedAt: DateTime
+    ---
+    +getQRContent(): String
+    +downloadImage(): byte[]
+  }
+
+  class Sale {
+    -id: String
+    -productId: String
+    -quantity: Int
+    -unitPrice: Decimal
+    -totalAmount: Decimal
+    -paymentMethod: PaymentMethod
+    -customerName: String
+    -customerPhone: String
+    -receiptNumber: String
+    -soldBy: String
+    -soldAt: DateTime
+    ---
+    +generateReceiptPDF(): PDF
+    +validate(): Boolean
+  }
+
+  class StockMovement {
+    -id: String
+    -productId: String
+    -type: MovementType
+    -quantity: Int
+    -previousStock: Int
+    -newStock: Int
+    -reason: String
+    -notes: String
+    -performedBy: String
+    -referenceId: String
+    -createdAt: DateTime
+    ---
+    +validate(): Boolean
+  }
+
+  class StockAlert {
+    -id: String
+    -productId: String
+    -type: AlertType
+    -threshold: Int
+    -currentStock: Int
+    -isActive: Boolean
+    -notifiedAt: DateTime
+    -acknowledgedAt: DateTime
+    -acknowledgedBy: String
+    -createdAt: DateTime
+    ---
+    +acknowledge(userId: String): void
+    +shouldNotify(): Boolean
+  }
+
+  class AuditLog {
+    -id: String
+    -userId: String
+    -action: String
+    -entity: String
+    -entityId: String
+    -changes: Json
+    -ipAddress: String
+    -userAgent: String
+    -createdAt: DateTime
+    ---
+    +getChanges(): Json
+  }
+}
+
+package "Énumérations" {
+  enum UserRole {
+    ADMIN
+    VENDOR
+    STOCK_MANAGER
+  }
+
+  enum Category {
+    PHONE
+    ACCESSORY
+    COMPONENT
+  }
+
+  enum ProductStatus {
+    ACTIVE
+    INACTIVE
+    DISCONTINUED
+  }
+
+  enum MovementType {
+    IN
+    OUT
+    ADJUSTMENT
+    SALE
+    PURCHASE
+    RETURN
+    DAMAGE
+  }
+
+  enum PaymentMethod {
+    CASH
+    CARD
+    MOBILE_MONEY
+    BANK_TRANSFER
+  }
+
+  enum AlertType {
+    LOW_STOCK
+    OUT_OF_STOCK
+    EXPIRY_SOON
+  }
+}
+
+' Relations
+User "1" --> "*" Product : creates
+User "1" --> "*" Sale : performs
+User "1" --> "*" StockMovement : performs
+User "1" --> "*" StockAlert : receives
+User "1" --> "*" AuditLog : generates
+
+Product "1" --> "0..1" QRCode : has
+Product "1" --> "*" Sale : sold_as
+Product "1" --> "*" StockMovement : moves
+Product "1" --> "*" StockAlert : triggers
+
+Sale "*" --> "1" Product : contains
+StockMovement "*" --> "1" Product : affects
+StockAlert "*" --> "1" Product : about
+
+Account "*" --> "1" User : belongs_to
+Session "*" --> "1" User : belongs_to
+
+UserRole ..|> User
+Category ..|> Product
+ProductStatus ..|> Product
+MovementType ..|> StockMovement
+PaymentMethod ..|> Sale
+AlertType ..|> StockAlert
+
+@enduml

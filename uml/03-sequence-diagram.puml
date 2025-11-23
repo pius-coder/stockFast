@@ -1,0 +1,69 @@
+# Diagramme de Séquence - Processus de Vente avec QR-Code
+
+```plantuml
+@startuml
+title Diagramme de Séquence - Processus de Vente stockFast
+
+actor Vendeur as vendor
+actor Client as client
+participant "Application web" as app
+participant "API Products" as api_product
+participant "API Sales" as api_sale
+participant "API QRCode" as api_qr
+participant "Database" as db
+
+client -> vendor: Demande d'achat produit
+vendor -> app: Scanner QR-Code produit
+app -> api_qr: decodeQRCode(qrData)
+api_qr -> db: SELECT product WHERE qrCode = ?
+db -> api_qr: Product data + QRCode info
+api_qr -> app: Product details
+
+alt Produit trouvé
+    app -> app: Afficher fiche produit
+
+    vendor -> app: Sélectionner quantité
+    vendor -> app: Choisir moyen de paiement
+
+    app -> api_sale: createSale(productId, quantity, payment)
+    api_sale -> db: INSERT sale + stock_movement
+    db -> api_sale: Sale confirmation
+
+    api_sale -> api_product: updateStock(productId, -quantity)
+    api_product -> db: UPDATE product.stock
+    db -> api_product: Stock updated
+
+    api_sale -> api_qr: updateStockHistory(productId, quantity, "SALE")
+    api_qr -> db: INSERT stock_movement
+
+    api_sale -> app: Sale success + receipt data
+
+    app -> app: Générer reçu PDF
+    app -> app: Afficher confirmation
+
+    app -> vendor: Reçu + nouveau stock
+
+else Produit non trouvé
+    app -> vendor: Erreur QR-Code invalide
+    vendor -> app: Réessayer scan
+end
+
+== Notifications ==
+app -> app: Vérifier stock après vente
+app -> api_product: checkLowStock(productId)
+api_product -> db: SELECT stock WHERE productId = ?
+
+alt Stock faible détecté
+    api_product -> api_sale: createStockAlert(productId, "LOW_STOCK")
+    api_sale -> db: INSERT stock_alert
+    db -> api_sale: Alert created
+    api_sale -> app: Send notification
+    app -> vendor: Alerte stock faible
+end
+
+== Export Reçu ==
+vendor -> app: Télécharger reçu PDF
+app -> app: generateReceiptPDF(saleData)
+app -> vendor: Fichier PDF généré
+
+@enduml
