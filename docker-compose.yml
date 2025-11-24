@@ -1,0 +1,55 @@
+# Configuration Docker pour stockFast
+version: "3.8"
+
+services:
+  # Base de données PostgreSQL pour stockFast
+  postgres:
+    image: postgres:16-alpine
+    container_name: stockfast_postgres
+    environment:
+      POSTGRES_DB: stockfast_dev
+      POSTGRES_USER: stockfast_user
+      POSTGRES_PASSWORD: stockfast_password_2025
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5234:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - stockfast_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stockfast_user -d stockfast_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Interface d'administration PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: stockfast_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@stockfast.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json
+    networks:
+      - stockfast_network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  stockfast_network:
+    driver: bridge
