@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============================================================================
+// MODÈLES D'AUTHENTIFICATION (BetterAuth)
+// ============================================================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(VENDOR)
+
+  // Relations BetterAuth
+  accounts Account[]
+  sessions Session[]
+
+  // Relations stockFast
+  products    Product[]
+  sales       Sale[]
+  stockMovements StockMovement[]
+  auditLogs   AuditLog[]
+  alerts      StockAlert[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================================
+// MODÈLES MÉTIER STOCKFAST
+// ============================================================================
+
+model Product {
+  id             String   @id @default(cuid())
+  name           String
+  brand          String
+  model          String
+  purchasePrice  Float
+  sellingPrice   Float
+  imei           String   @unique
+  availableStock Int      @default(0)
+  minStockLevel  Int      @default(5)
+  description    String?
+  images         String   @default("[]")
+  category       Category @default(PHONE)
+  status         ProductStatus @default(ACTIVE)
+  createdBy      String
+  updatedBy      String?
+
+  // Relations
+  qrCode       QRCode?
+  sales        Sale[]
+  stockMovements StockMovement[]
+  alerts       StockAlert[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("products")
+}
+
+model QRCode {
+  id         String   @id @default(cuid())
+  productId  String   @unique
+  code       String   @unique
+  imageUrl   String?
+  imageData  String?
+  generatedBy String
+  isActive   Boolean  @default(true)
+  generatedAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("qrcodes")
+}
+
+model Sale {
+  id            String      @id @default(cuid())
+  productId     String
+  quantity      Int
+  unitPrice     Float
+  totalAmount   Float
+  paymentMethod PaymentMethod
+  customerName  String?
+  customerPhone String?
+  receiptNumber String      @unique
+  soldBy        String
+  soldAt        DateTime    @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("sales")
+}
+
+model StockMovement {
+  id             String          @id @default(cuid())
+  productId      String
+  type           MovementType
+  quantity       Int
+  previousStock  Int
+  newStock       Int
+  reason         String?
+  notes          String?
+  performedBy    String
+  referenceId    String?
+  createdAt      DateTime        @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("stock_movements")
+}
+
+model StockAlert {
+  id             String       @id @default(cuid())
+  productId      String
+  type           AlertType
+  threshold      Int
+  currentStock   Int
+  isActive       Boolean      @default(true)
+  notifiedAt     DateTime?
+  acknowledgedAt DateTime?
+  acknowledgedBy String?
+  createdAt      DateTime     @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("stock_alerts")
+}
+
+model AuditLog {
+  id         String    @id @default(cuid())
+  userId     String
+  action     String
+  entity     String
+  entityId   String
+  changes    String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// ============================================================================
+// ÉNUMÉRATIONS
+// ============================================================================
+
+enum UserRole {
+  ADMIN        @map("admin")
+  VENDOR       @map("vendor")
+  STOCK_MANAGER @map("stock_manager")
+}
+
+enum Category {
+  PHONE       @map("phone")
+  ACCESSORY   @map("accessory")
+  COMPONENT   @map("component")
+}
+
+enum ProductStatus {
+  ACTIVE       @map("active")
+  INACTIVE     @map("inactive")
+  DISCONTINUED @map("discontinued")
+}
+
+enum MovementType {
+  IN          @map("in")
+  OUT         @map("out")
+  ADJUSTMENT  @map("adjustment")
+  SALE        @map("sale")
+  PURCHASE    @map("purchase")
+  RETURN      @map("return")
+  DAMAGE      @map("damage")
+}
+
+enum AlertType {
+  LOW_STOCK      @map("low_stock")
+  OUT_OF_STOCK   @map("out_of_stock")
+  EXPIRY_SOON    @map("expiry_soon")
+}
+
+enum PaymentMethod {
+  CASH        @map("cash")
+  CARD        @map("card")
+  MOBILE_MONEY @map("mobile_money")
+  BANK_TRANSFER @map("bank_transfer")
+}
