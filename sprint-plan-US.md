@@ -4,9 +4,9 @@
 
 ---
 
-## **Sprint 1 : Infrastructure et Authentification (1 semaine)**
+## **Sprint 1 : Infrastructure et Authentification (1 semaine)** ✅ COMPLÉTÉ
 
-### **User Story US01-001** - Configuration de l'environnement
+### **User Story US01-001** - Configuration de l'environnement ✅
 
 **En tant que** développeur
 **Je veux** configurer l'environnement de développement
@@ -14,16 +14,19 @@
 
 **Critères d'acceptation :**
 
-- [ ] Prisma configuré avec PostgreSQL
-- [ ] BetterAuth intégré
-- [ ] Variables d'environnement définies
-- [ ] Structure de dossiers créée
-- [ ] Tests de connexion à la base de données fonctionnels
+- [x] Prisma configuré avec PostgreSQL
+- [x] BetterAuth intégré
+- [x] Variables d'environnement définies
+- [x] Structure de dossiers créée
+- [x] Tests de connexion à la base de données fonctionnels
+- [x] Docker PostgreSQL configuré (port 5234)
+- [x] Schéma Prisma avec modèles Auth (User, Session, Account, Verification)
+- [x] Schéma Prisma avec modèles métier (Product, Sale, StockMovement, StockAlert, etc.)
 
-**Livrable :** Environnement de développement fonctionnel
+**Livrable :** Environnement de développement fonctionnel ✅
 **Diagrammes UML associés :** [06-component-diagram.puml](uml/06-component-diagram.puml), [07-deployment-diagram.puml](uml/07-deployment-diagram.puml), [09-package-diagram.puml](uml/09-package-diagram.puml)
 
-### **User Story US01-002** - Gestion des utilisateurs
+### **User Story US01-002** - Gestion des utilisateurs ✅
 
 **En tant que** administrateur
 **Je veux** créer et gérer les comptes utilisateurs
@@ -31,14 +34,43 @@
 
 **Critères d'acceptation :**
 
-- [ ] Inscription des utilisateurs avec rôles (Admin, Vendeur, Stock Manager)
-- [ ] Authentification avec JWT
-- [ ] Gestion des sessions
-- [ ] Interface de connexion/déconnexion
-- [ ] Autorisations par rôle
+- [x] Inscription des utilisateurs avec rôles (Admin, Vendeur, Stock Manager)
+- [x] Authentification avec BetterAuth (email/password)
+- [x] Gestion des sessions
+- [x] Interface de connexion/déconnexion
+- [x] Formulaires d'inscription et connexion en français
+- [x] Client BetterAuth configuré (`src/lib/auth-client.ts`)
+- [x] Serveur BetterAuth configuré (`src/lib/auth.ts`)
+- [x] Routes API d'authentification (`/api/auth/[...all]`)
+- [x] Composant LogoutButton
+- [x] Autorisations par rôle (enum UserRole dans Prisma)
 
-**Livrable :** Système d'authentification complet
+**Livrable :** Système d'authentification complet ✅
 **Diagrammes UML associés :** [02-class-diagram.puml](uml/02-class-diagram.puml), [08-object-diagram.puml](uml/08-object-diagram.puml)
+
+### **User Story US01-003** - Dashboard et Interface ✅ (BONUS)
+
+**En tant que** utilisateur authentifié
+**Je veux** accéder à un tableau de bord moderne
+**Afin de** visualiser les indicateurs clés de l'application
+
+**Critères d'acceptation :**
+
+- [x] Layout dashboard avec sidebar collapsible
+- [x] Header avec recherche et toggle theme
+- [x] Sidebar avec navigation (Vue d'ensemble, Produits, Ventes, Stock, Clients, Rapports, Paramètres)
+- [x] Cartes statistiques (4 KPIs)
+- [x] Graphique d'évolution (AreaChart avec Recharts)
+- [x] Graphique de répartition (BarChart)
+- [x] Section "Dernières Ventes"
+- [x] Section "Équipe"
+- [x] Onglets de navigation (Overview, Analytics, Reports, Notifications)
+- [x] API route pour statistiques (`/api/dashboard/stats`)
+- [x] Composants réutilisables (Card, Button, Tabs)
+- [x] Design moderne inspiré de Shadcn/UI
+
+**Livrable :** Dashboard fonctionnel et esthétique ✅
+**Diagrammes UML associés :** [01-use-case-diagram.puml](uml/01-use-case-diagram.puml), [06-component-diagram.puml](uml/06-component-diagram.puml)
 
 ---
 

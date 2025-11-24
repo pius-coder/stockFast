@@ -1,6 +1,6 @@
 // components/ui/card.tsx - Apple-inspired Card Component
-import { cn } from "@/lib/utils"
 import * as React from "react"
+import { cn } from "@/lib/utils"
 
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -10,21 +10,19 @@ const Card = React.forwardRef<
     ref={ref}
     className={cn(
       // Base Apple-style card
-      "bg-white border border-gray-200/60 rounded-lg",
+      "bg-white border border-gray-200/60",
 
       // Depth via subtle border variations
       "border-t border-gray-100", // Lighter top border for depth
       "border-l border-gray-100/50", // Subtle left border
 
       // Apple elevation system
-      "shadow-sm", // Base elevation
 
       // Hover states with smooth elevation changes
       "hover:shadow-md hover:border-gray-200/80",
       "hover:border-t-gray-200 hover:border-l-gray-200/70",
 
       // Active/pressed state
-      "active:shadow-sm active:border-gray-200/60",
       "active:border-t-gray-100 active:border-l-gray-100/50",
 
       // Focus ring for accessibility
@@ -41,7 +39,7 @@ const CardHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex flex-col space-y-1.5 p-6", className)} />
+  <div ref={ref} className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />
 ))
 CardHeader.displayName = "CardHeader"
 
@@ -76,7 +74,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} />
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
 ))
 CardContent.displayName = "CardContent"
 
@@ -84,7 +82,7 @@ const CardFooter = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex items-center p-6 pt-0", className)} />
+  <div ref={ref} className={cn("flex items-center p-6 pt-0", className)} {...props} />
 ))
 CardFooter.displayName = "CardFooter"
 
