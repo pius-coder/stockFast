@@ -4,18 +4,18 @@ import { z } from "zod";
 export const signUpSchema = z
     .object({
         name: z.string().min(2, {
-            message: "Name must be at least 2 characters.",
+            message: "Le nom doit contenir au moins 2 caractères.",
         }),
         email: z.string().email({
-            message: "Please enter a valid email address.",
+            message: "Veuillez entrer une adresse email valide.",
         }),
         password: z.string().min(8, {
-            message: "Password must be at least 8 characters.",
+            message: "Le mot de passe doit contenir au moins 8 caractères.",
         }),
         confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {
-        message: "Passwords don't match",
+        message: "Les mots de passe ne correspondent pas",
         path: ["confirmPassword"],
     });
 
@@ -34,25 +34,25 @@ export interface FormFieldConfig {
 export const SIGN_UP_FORM_CONFIG: FormFieldConfig[] = [
     {
         name: "name",
-        label: "Name",
+        label: "Nom complet",
         type: "input",
-        placeholder: "John Doe",
+        placeholder: "Jean Dupont",
     },
     {
         name: "email",
         label: "Email",
         type: "email",
-        placeholder: "m@example.com",
+        placeholder: "votre@email.com",
     },
     {
         name: "password",
-        label: "Password",
+        label: "Mot de passe",
         type: "password",
         placeholder: "••••••••",
     },
     {
         name: "confirmPassword",
-        label: "Confirm Password",
+        label: "Confirmer le mot de passe",
         type: "password",
         placeholder: "••••••••",
     },

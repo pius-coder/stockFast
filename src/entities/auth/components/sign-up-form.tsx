@@ -41,18 +41,18 @@ export function SignUpForm() {
                 },
                 {
                     onSuccess: () => {
-                        toast.success("Account created successfully!");
-                        router.push("/");
+                        toast.success("Compte créé avec succès! Bienvenue sur stockFast");
+                        router.push("/dashboard");
                     },
                     onError: (ctx) => {
-                        toast.error(ctx.error.message || "Failed to create account");
+                        toast.error(ctx.error.message || "Échec de création du compte");
                         setIsLoading(false);
                     },
                 },
             );
         } catch (error) {
-            toast.error("Something went wrong. Please try again.");
-            console.error("Sign up error:", error);
+            toast.error("Une erreur s'est produite. Veuillez réessayer.");
+            console.error("Erreur d'inscription:", error);
             setIsLoading(false);
         }
     }
@@ -61,10 +61,10 @@ export function SignUpForm() {
         <div className="w-full bg-card text-card-foreground border shadow-sm">
             <div className="flex flex-col space-y-1.5 p-6">
                 <h2 className="font-semibold leading-none tracking-tight text-2xl">
-                    Create an account
+                    Créer un compte
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                    Enter your information to create your DropInDrop account
+                    Entrez vos informations pour créer votre compte stockFast
                 </p>
             </div>
             <div className="p-6 pt-0">
@@ -78,7 +78,7 @@ export function SignUpForm() {
                             />
                         ))}
                         <Button className="w-full" type="submit" disabled={isLoading}>
-                            {isLoading ? "Creating account..." : "Sign Up"}
+                            {isLoading ? "Création du compte..." : "Créer un compte"}
                         </Button>
                     </form>
                 </Form>

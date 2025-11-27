@@ -9,7 +9,7 @@ Développer une application web complète de gestion de stocks pour une boutique
 ### Technologies Adaptées au Stack Actuel
 
 - **Frontend** : Next.js 16 + React 19 + TypeScript (déjà en place)
-- **Backend** : API Routes Next.js (remplace ASP.NET Core)
+- **Backend** : API Routes (query) + server actions(Mutations) Next.js (remplace ASP.NET Core)
 - **Base de données** : PostgreSQL avec Prisma (remplace SQL Server)
 - **QR-Code** : qrcode.js (librairie JavaScript)
 - **Styling** : TailwindCSS + composants UI (déjà en place)
@@ -27,12 +27,12 @@ Développer une application web complète de gestion de stocks pour une boutique
 
 ```typescript
 // src/entities/
-├── Product.ts          # Produits (téléphones, accessoires)
-├── Stock.ts            # Gestion des niveaux de stock
-├── Sale.ts             # Ventes et transactions
-├── User.ts             # Utilisateurs et rôles
-├── QRCode.ts           # QR-codes générés
-└── AuditLog.ts         # Journal d'activité
+├── Product/          # Produits (téléphones, accessoires)
+├── Stock/            # Gestion des niveaux de stock
+├── Sale/             # Ventes et transactions
+├── User/             # Utilisateurs et rôles
+├── QRCode/           # QR-codes générés
+└── AuditLog/         # Journal d'activité
 ```
 
 ### Phase 2: Gestion des Produits (1 semaine)

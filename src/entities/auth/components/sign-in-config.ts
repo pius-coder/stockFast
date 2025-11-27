@@ -17,11 +17,11 @@ export const SIGN_IN_FORM_CONFIG: FormFieldConfig[] = [
         name: "email",
         label: "Email",
         type: "email",
-        placeholder: "m@example.com",
+        placeholder: "votre@email.com",
     },
     {
         name: "password",
-        label: "Password",
+        label: "Mot de passe",
         type: "password",
         placeholder: "••••••••",
     },

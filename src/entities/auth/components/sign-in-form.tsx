@@ -38,18 +38,18 @@ export function SignInForm() {
                 },
                 {
                     onSuccess: () => {
-                        toast.success("Signed in successfully");
-                        router.push("/");
+                        toast.success("Connexion réussie! Bienvenue sur stockFast");
+                        router.push("/dashboard");
                     },
                     onError: (ctx) => {
-                        toast.error(ctx.error.message || "Failed to sign in");
+                        toast.error(ctx.error.message || "Échec de la connexion");
                         setIsLoading(false);
                     },
                 },
             );
         } catch (error) {
-            toast.error("Something went wrong. Please try again.");
-            console.error("Sign in error:", error);
+            toast.error("Une erreur s'est produite. Veuillez réessayer.");
+            console.error("Erreur de connexion:", error);
             setIsLoading(false);
         }
     }
@@ -58,10 +58,10 @@ export function SignInForm() {
         <div className="w-full bg-card text-card-foreground border shadow-sm">
             <div className="flex flex-col space-y-1.5 p-6">
                 <h2 className="font-semibold leading-none tracking-tight text-2xl">
-                    Sign In
+                    Connexion
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                    Enter your email below to sign in to your account
+                    Entrez votre email pour accéder à votre compte stockFast
                 </p>
             </div>
             <div className="p-6 pt-0">
@@ -75,7 +75,7 @@ export function SignInForm() {
                             />
                         ))}
                         <Button className="w-full" type="submit" disabled={isLoading}>
-                            {isLoading ? "Signing in..." : "Sign In"}
+                            {isLoading ? "Connexion en cours..." : "Se connecter"}
                         </Button>
                     </form>
                 </Form>
