@@ -3,7 +3,7 @@
 // Advanced search input with debouncing, suggestions, and integration
 // ============================================================================
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, Loader2, Clock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -82,9 +82,9 @@ function SearchSuggestions({
       {suggestions.length === 0 ? (
         <div className="p-4 text-center text-gray-500">
           <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-          <p className="text-sm">Aucun résultat trouvé pour "{query}"</p>
+          <p className="text-sm">Aucun résultat trouvé pour &quot;{query}&quot;</p>
           <p className="text-xs text-gray-400 mt-1">
-            Essayez avec d'autres mots-clés ou vérifiez l'orthographe
+            Essayez avec d&apos;autres mots-clés ou vérifiez l&apos;orthographe
           </p>
         </div>
       ) : (

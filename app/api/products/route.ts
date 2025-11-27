@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
-import { ProductCategory, ProductStatus } from "@/entities/product/types/product.types";
+import { Prisma } from "@prisma/client";
 
 // Validation schema for query parameters
 const querySchema = z.object({
@@ -22,14 +21,20 @@ const querySchema = z.object({
 // GET /api/products - List products with pagination, search, and filters
 export async function GET(request: Request) {
     try {
-        // Check authentication
-        const session = await auth.api.getSession({ headers: await headers() });
+        // Check authentication - BetterAuth needs the request object, not just headers
+
+        const session = await auth.api.getSession({
+            headers: request.headers
+        });
+
+
         if (!session?.user) {
             return NextResponse.json(
                 { success: false, error: "Authentification requise" },
                 { status: 401 }
             );
         }
+
 
         const { searchParams } = new URL(request.url);
         const queryData = Object.fromEntries(searchParams.entries());
@@ -51,7 +56,7 @@ export async function GET(request: Request) {
         } = validatedQuery;
 
         // Build where clause
-        const where: any = {};
+        const where: Prisma.ProductWhereInput = {};
 
         // Text search
         if (search) {
@@ -103,7 +108,7 @@ export async function GET(request: Request) {
         const skip = (page - 1) * limit;
 
         // Build order by clause
-        const orderBy: any = {};
+        const orderBy: Prisma.ProductOrderByWithRelationInput = {};
         if (sortBy) {
             orderBy[sortBy] = sortOrder;
         } else {
@@ -129,6 +134,7 @@ export async function GET(request: Request) {
                         select: {
                             id: true,
                             code: true,
+                            imageData: true,
                             imageUrl: true
                         }
                     }

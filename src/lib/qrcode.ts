@@ -3,7 +3,7 @@
 // Generate QR codes for products using the qrcode package
 // ============================================================================
 
-import QRCode from 'qrcode';
+import * as QRCode from 'qrcode';
 
 /**
  * Generate QR code for a product
@@ -31,8 +31,6 @@ export async function generateProductQRCode(
 
         // Generate QR code as base64 PNG
         const qrCodeBase64 = await QRCode.toDataURL(qrContent, {
-            type: 'image/png',
-            quality: 0.92,
             margin: 1,
             color: {
                 dark: '#000000',
@@ -67,8 +65,6 @@ export async function generateSimpleProductQRCode(
 
         // Generate QR code as base64 PNG
         const qrCodeBase64 = await QRCode.toDataURL(qrContent, {
-            type: 'image/png',
-            quality: 0.92,
             margin: 1,
             color: {
                 dark: '#000000',
@@ -90,17 +86,23 @@ export async function generateSimpleProductQRCode(
  * @param qrData - Parsed QR code data
  * @returns boolean indicating if the QR data is valid
  */
-export function validateQRCodeData(qrData: any): boolean {
+export function validateQRCodeData(qrData: unknown): boolean {
     try {
+        if (
+            !qrData ||
+            typeof qrData !== 'object'
+        ) {
+            return false;
+        }
+
+        const data = qrData as Record<string, unknown>;
         return (
-            qrData &&
-            typeof qrData === 'object' &&
-            typeof qrData.productId === 'string' &&
-            typeof qrData.imei === 'string' &&
-            qrData.productId.length > 0 &&
-            qrData.imei.length === 15
+            typeof data.productId === 'string' &&
+            typeof data.imei === 'string' &&
+            data.productId.length > 0 &&
+            data.imei.length === 15
         );
-    } catch (error) {
+    } catch {
         return false;
     }
 }
@@ -128,7 +130,7 @@ export function parseQRCodeContent(qrContent: string): {
                     created: qrData.created
                 };
             }
-        } catch (jsonError) {
+        } catch {
             // Not JSON, try to parse as text format
         }
 

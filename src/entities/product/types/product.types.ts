@@ -63,7 +63,9 @@ export interface Product {
     qrCode?: {
         id: string;
         code: string;
+        imageData?: string;
         imageUrl?: string;
+        generatedAt: Date;
     };
 }
 
@@ -156,6 +158,14 @@ export interface ProductSortOptions {
 export interface ProductPaginationOptions {
     page: number;
     limit: number;
+    total?: number;
+}
+
+export interface PaginationInfo {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
 }
 
 export interface ProductSearchParams extends ProductSearchFilters, ProductSortOptions, ProductPaginationOptions { }

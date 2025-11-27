@@ -28,6 +28,9 @@ async function searchProducts(
     const response = await fetch(`/api/products/search?${params.toString()}`)
 
     if (!response.ok) {
+        if (response.status === 401) {
+            throw new Error('UNAUTHORIZED')
+        }
         throw new Error('Failed to search products')
     }
 
@@ -42,5 +45,14 @@ export function useSearchProducts(query: string, filters?: ProductSearchFilters)
         enabled: query.length >= 2,
         // Keep previous data while fetching
         placeholderData: (previousData) => previousData,
+        // Don't retry on auth errors
+        retry: (failureCount, error) => {
+            if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+                return false
+            }
+            return failureCount < 3
+        },
+        // Reduce stale time
+        staleTime: 30000, // 30 seconds
     })
 }

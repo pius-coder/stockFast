@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useMemo } from "react"
 import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react"
+import Image from 'next/image';
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -26,10 +27,10 @@ export function ImageUpload({
     const [processingProgress, setProcessingProgress] = useState(0)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
-    const images = value || []
+    const images = useMemo(() => value || [], [value])
 
     // Validate file
-    const validateFile = (file: File): string | null => {
+    const validateFile = useCallback((file: File): string | null => {
         // Check file type
         const validTypes = ["image/jpeg", "image/png", "image/webp"]
         if (!validTypes.includes(file.type)) {
@@ -43,7 +44,7 @@ export function ImageUpload({
         }
 
         return null
-    }
+    }, [maxSizeMB])
 
     // Convert file to base64
     const fileToBase64 = (file: File): Promise<string> => {
@@ -56,7 +57,7 @@ export function ImageUpload({
     }
 
     // Process files
-    const processFiles = async (files: FileList | File[]) => {
+    const processFiles = useCallback(async (files: FileList | File[]) => {
         const fileArray = Array.from(files)
 
         // Check total images limit
@@ -102,7 +103,7 @@ export function ImageUpload({
 
         setIsProcessing(false)
         setProcessingProgress(0)
-    }
+    }, [images, maxImages, onChange, validateFile])
 
     // Handle drag events
     const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -137,7 +138,7 @@ export function ImageUpload({
                 processFiles(files)
             }
         },
-        [disabled, images, maxImages, onChange]
+        [disabled, processFiles]
     )
 
     // Handle file input change
@@ -258,9 +259,11 @@ export function ImageUpload({
                                 key={index}
                                 className="group relative aspect-square rounded-lg overflow-hidden border bg-muted"
                             >
-                                <img
+                                <Image
                                     src={image}
                                     alt={`Image ${index + 1}`}
+                                    width={200}
+                                    height={200}
                                     className="w-full h-full object-cover"
                                 />
 

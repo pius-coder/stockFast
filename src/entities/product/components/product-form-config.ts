@@ -203,7 +203,13 @@ export function convertToApiFormat(values: ProductFormValues) {
 /**
  * Converts API format to form values
  */
-export function convertFromApiFormat(apiData: any): ProductFormValues {
+export function convertFromApiFormat(apiData: {
+    purchasePrice?: number | string;
+    sellingPrice?: number | string;
+    availableStock?: number | string;
+    minStockLevel?: number | string;
+    [key: string]: unknown;
+}): ProductFormValues {
     return {
         ...apiData,
         purchasePrice: apiData.purchasePrice?.toString() || "",

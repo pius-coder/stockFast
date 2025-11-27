@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
+
 import { auth } from "@/lib/auth";
 
 // GET /api/products/[id] - Retrieve single product by ID
@@ -10,7 +10,7 @@ export async function GET(
 ) {
     try {
         // Check authentication
-        const session = await auth.api.getSession({ headers: await headers() });
+        const session = await auth.api.getSession({ headers: request.headers });
         if (!session?.user) {
             return NextResponse.json(
                 { success: false, error: "Authentification requise" },
@@ -43,6 +43,7 @@ export async function GET(
                     select: {
                         id: true,
                         code: true,
+                        imageData: true,
                         imageUrl: true,
                         isActive: true,
                         generatedAt: true

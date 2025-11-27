@@ -407,10 +407,12 @@
 			"error",
 			{
 				"code": 100,
-				"ignoreStrings": true,
-				"ignoreTemplateLiterals": true,
-				"ignoreComments": true,
-				"ignoreUrls": true
+				"ignoreStrings": false,
+				"ignoreTemplateLiterals": false,
+				"ignoreComments": false,
+				"ignoreUrls": true,
+				"ignorePattern": "^import\\s+.*\\s+from\\s+['\"]",
+				"tabWidth": 2
 			}
 		],
 

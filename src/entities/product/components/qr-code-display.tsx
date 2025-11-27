@@ -8,7 +8,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, Printer, QrCode, AlertCircle, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { Download, Printer, QrCode, AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { Product } from '../types/product.types';
 
 interface QRCodeDisplayProps {
@@ -37,6 +38,7 @@ export function QRCodeDisplay({
     const [isDownloading, setIsDownloading] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const [isRegenerating, setIsRegenerating] = useState(false);
 
     // Size configurations
     const sizeConfig = {
@@ -46,6 +48,51 @@ export function QRCodeDisplay({
     };
 
     const { width, height, iconSize } = sizeConfig[size];
+
+    // Handle QR code regeneration
+    const handleRegenerateQRCode = async () => {
+        if (!qrCode) return;
+        
+        try {
+            setIsRegenerating(true);
+            console.log('Starting QR code regeneration for:', qrCode.id);
+            
+            const response = await fetch('/api/products/regenerate-qr', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: product.id,
+                    qrCodeId: qrCode.id
+                })
+            });
+
+            console.log('QR regeneration response status:', response.status);
+            
+            if (response.ok) {
+                const result = await response.json();
+                console.log('QR regeneration result:', result);
+                if (result.success) {
+                    // Refresh the page to show the new QR code
+                    window.location.reload();
+                } else {
+                    console.error('QR regeneration failed:', result.error);
+                    onError?.(result.error || 'Échec de la régénération du code QR');
+                }
+            } else {
+                console.error('QR regeneration HTTP error:', response.status);
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+                onError?.(`Erreur HTTP ${response.status}: ${errorText}`);
+            }
+        } catch (error) {
+            console.error('Error regenerating QR code:', error);
+            onError?.('Erreur lors de la régénération du code QR');
+        } finally {
+            setIsRegenerating(false);
+        }
+    };
 
     // Handle download functionality
     const handleDownload = async () => {
@@ -168,10 +215,10 @@ export function QRCodeDisplay({
     };
 
     // Handle image load error
-    const handleImageError = () => {
-        setImageError(true);
-        onError?.('Erreur de chargement du code QR');
-    };
+    // const handleImageError = () => {
+    //     setImageError(true);
+    //     onError?.('Erreur de chargement du code QR');
+    // };
 
     // If no QR code data available
     if (!qrCode) {
@@ -183,7 +230,7 @@ export function QRCodeDisplay({
                         Code QR non disponible
                     </h3>
                     <p className="text-sm text-gray-500">
-                        Aucun code QR n'a été généré pour ce produit
+                        Aucun code QR n&apos;a été généré pour ce produit
                     </p>
                 </CardContent>
             </Card>
@@ -201,14 +248,32 @@ export function QRCodeDisplay({
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-center">
+                    <div className="text-center space-y-4">
                         <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-                        <p className="text-sm text-gray-600 mb-4">
-                            Le code QR pour ce produit n'a pas pu être chargé
+                        <p className="text-sm text-gray-600">
+                            Le code QR pour ce produit n&apos;a pas pu être chargé
                         </p>
                         <p className="text-xs text-gray-500">
                             Code QR: {qrCode.code}
                         </p>
+                        <Button
+                            onClick={handleRegenerateQRCode}
+                            disabled={isRegenerating}
+                            variant="outline"
+                            size="sm"
+                        >
+                            {isRegenerating ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Régénération...
+                                </>
+                            ) : (
+                                <>
+                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    Régénérer le code QR
+                                </>
+                            )}
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
@@ -233,13 +298,13 @@ export function QRCodeDisplay({
                         className="border rounded-lg p-4 bg-white"
                         style={{ width: width + 32, height: height + 32 }}
                     >
-                        <img
+                        <Image
                             src={qrCode.imageData}
                             alt={`QR Code for ${product.name}`}
                             width={width}
                             height={height}
-                            className="block mx-auto"
-                            onError={handleImageError}
+                            className="border border-gray-200 rounded"
+                            onError={() => setImageError(true)}
                         />
                     </div>
                 </div>
@@ -343,9 +408,11 @@ export function QRCodePreview({ product, qrCode, className = '' }: QRCodePreview
 
     return (
         <div className={`${className} w-16 h-16 border rounded-lg p-1 bg-white`}>
-            <img
+            <Image
                 src={qrCode.imageData}
                 alt={`QR Code for ${product.name}`}
+                width={64}
+                height={64}
                 className="w-full h-full object-contain"
                 onError={() => setImageError(true)}
             />

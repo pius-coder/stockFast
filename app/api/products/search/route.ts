@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
 // Advanced search validation schema
 const advancedSearchSchema = z.object({
@@ -24,7 +24,7 @@ const advancedSearchSchema = z.object({
 export async function GET(request: Request) {
     try {
         // Check authentication
-        const session = await auth.api.getSession({ headers: await headers() });
+        const session = await auth.api.getSession({ headers: request.headers });
         if (!session?.user) {
             return NextResponse.json(
                 { success: false, error: "Authentification requise" },
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
         } = validatedParams;
 
         // Build where clause for advanced search
-        const where: any = {};
+        const where: Prisma.ProductWhereInput = {};
 
         // Full-text search across multiple fields
         if (query && exactMatch) {
@@ -105,27 +105,16 @@ export async function GET(request: Request) {
         // Calculate pagination
         const skip = (page - 1) * limit;
 
-        // Build order by clause with relevance scoring for search
-        let orderBy: any[] = [];
-
-        if (query && !exactMatch) {
-            // Add relevance scoring for text search
-            orderBy.push(
-                // Exact name matches first
-                {
-                    name: { equals: query, mode: 'insensitive' }
-                }
-            );
-        }
+        // Build order by clause
+        const orderBy: Prisma.ProductOrderByWithRelationInput[] = [];
 
         // Add the main sort criteria
-        const sortCriteria: any = {};
+        const sortCriteria: Prisma.ProductOrderByWithRelationInput = {};
         if (sortBy) {
             sortCriteria[sortBy] = sortOrder;
-        } else if (query && !exactMatch) {
-            sortCriteria.createdAt = 'desc';
         } else {
-            sortCriteria.name = 'asc';
+            // Default sorting based on whether there's a search query
+            sortCriteria.createdAt = 'desc';
         }
         orderBy.push(sortCriteria);
 
@@ -148,6 +137,7 @@ export async function GET(request: Request) {
                         select: {
                             id: true,
                             code: true,
+                            imageData: true,
                             imageUrl: true
                         }
                     }

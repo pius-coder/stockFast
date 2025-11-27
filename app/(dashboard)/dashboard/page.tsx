@@ -25,7 +25,7 @@ export default function DashboardPage() {
             </div>
             <Tabs defaultValue="overview" className="space-y-4">
                 <TabsList>
-                    <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+                    <TabsTrigger value="overview">Vue d&apos;ensemble</TabsTrigger>
                     <TabsTrigger value="analytics" disabled>Analytique</TabsTrigger>
                     <TabsTrigger value="reports" disabled>Rapports</TabsTrigger>
                     <TabsTrigger value="notifications" disabled>Notifications</TabsTrigger>
@@ -77,7 +77,7 @@ export default function DashboardPage() {
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">
-                                    Chiffre d'Affaires
+                                    Chiffre d&apos;Affaires
                                 </CardTitle>
                                 <DollarSign className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>

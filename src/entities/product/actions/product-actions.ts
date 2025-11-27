@@ -7,44 +7,70 @@ import { z } from "zod";
 import { generateProductQRCode } from "@/lib/qrcode";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ProductCategory, ProductStatus } from "@/entities/product/types/product.types";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
-// Validation schema for creating product
-const createProductSchema = z.object({
-    name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-    brand: z.string().min(1, "La marque est obligatoire"),
-    model: z.string().min(1, "Le modèle est obligatoire"),
-    purchasePrice: z.number().positive("Le prix d'achat doit être positif"),
-    sellingPrice: z.number().positive("Le prix de vente doit être positif"),
-    imei: z.string().regex(/^\d{15}$/, "L'IMEI doit contenir exactement 15 chiffres"),
-    availableStock: z.number().min(0, "Le stock disponible doit être positif ou zéro"),
-    minStockLevel: z.number().min(0, "Le niveau de stock minimum doit être positif ou zéro"),
-    description: z.string().optional(),
-    category: z.enum(['PHONE', 'ACCESSORY', 'COMPONENT']),
-    status: z.enum(['ACTIVE', 'INACTIVE', 'DISCONTINUED']).optional()
-}).refine((data) => {
-    return data.sellingPrice > data.purchasePrice;
-}, {
-    message: "Le prix de vente doit être supérieur au prix d'achat",
-    path: ["sellingPrice"],
-}).refine((data) => {
-    return data.minStockLevel <= data.availableStock;
-}, {
-    message: "Le niveau de stock minimum ne peut pas être supérieur au stock disponible",
-    path: ["minStockLevel"],
-});
-
-// Validation schema for updating product
-const updateProductSchema = createProductSchema.partial().extend({
-    id: z.string().min(1, "ID du produit requis")
-});
+import { createProductSchema, updateProductSchema } from './schemas';
 
 // ============================================================================
 // SERVER ACTIONS
 // ============================================================================
+
+/**
+ * Helper to serialize Prisma product to Product interface
+ */
+function serializeProduct(product: unknown, qrCode?: unknown) {
+    const typedProduct = product as {
+        id: string;
+        name: string;
+        brand: string;
+        model: string;
+        purchasePrice: { toNumber: () => number };
+        sellingPrice: { toNumber: () => number };
+        imei: string;
+        availableStock: number;
+        minStockLevel: number;
+        description?: string | null;
+        images: unknown;
+        category: string;
+        status: string;
+        createdBy: string;
+        updatedBy?: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        creator?: {
+            id: string;
+            name: string;
+            email: string;
+        };
+    };
+
+    const typedQRCode = qrCode as {
+        id: string;
+        code: string;
+        imageData?: string | null;
+        imageUrl?: string | null;
+        generatedAt: Date;
+    } | undefined;
+    
+    return {
+        ...typedProduct,
+        purchasePrice: typedProduct.purchasePrice.toNumber(),
+        sellingPrice: typedProduct.sellingPrice.toNumber(),
+        images: typedProduct.images as string[],
+        description: typedProduct.description || undefined,
+        category: typedProduct.category as ProductCategory,
+        status: typedProduct.status as ProductStatus,
+        qrCode: typedQRCode ? {
+            ...typedQRCode,
+            imageData: typedQRCode.imageData || undefined,
+            imageUrl: typedQRCode.imageUrl || undefined,
+        } : undefined,
+    };
+}
 
 /**
  * Create a new product
@@ -171,7 +197,7 @@ export async function createProduct(formData: FormData) {
 
         return {
             success: true,
-            data: result.product,
+            data: serializeProduct(result.product, result.qrCode),
             message: "Produit créé avec succès"
         };
 
@@ -285,7 +311,8 @@ export async function updateProduct(formData: FormData) {
                             name: true,
                             email: true
                         }
-                    }
+                    },
+                    qrCode: true
                 }
             });
 
@@ -334,7 +361,7 @@ export async function updateProduct(formData: FormData) {
 
         return {
             success: true,
-            data: result,
+            data: serializeProduct(result),
             message: "Produit mis à jour avec succès"
         };
 
@@ -460,7 +487,7 @@ export async function deleteProduct(productId: string) {
 
         return {
             success: true,
-            data: result,
+            data: serializeProduct(result),
             message: "Produit supprimé avec succès"
         };
 
@@ -590,7 +617,7 @@ export async function adjustStock(productId: string, newStock: number, reason: s
 
         return {
             success: true,
-            data: result,
+            data: serializeProduct(result),
             message: `Stock ajusté de ${existingProduct.availableStock} à ${newStock}`
         };
 

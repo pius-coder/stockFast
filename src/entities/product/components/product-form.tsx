@@ -106,7 +106,7 @@ export function ProductForm({
     };
 
     // Handle form errors
-    const onError = (errors: any) => {
+    const onError = (errors: Record<string, unknown>) => {
         console.error("Form validation errors:", errors);
         toast.error("Veuillez corriger les erreurs dans le formulaire");
     };
@@ -137,47 +137,27 @@ export function ProductForm({
     const isOutOfStock = availableStock === 0;
 
     return (
-        <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <div className="min-h-screen relative p-6 space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={handleCancel}
-                        disabled={isSubmitting || mutation.isPending}
-                    >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Retour
-                    </Button>
-                    <div>
-                        <h1 className="text-3xl font-bold">
-                            {mode === "create" ? "Créer un nouveau produit" : "Modifier le produit"}
-                        </h1>
-                        <p className="text-muted-foreground mt-1">
-                            {mode === "create"
-                                ? "Ajoutez un nouveau produit à votre inventaire"
-                                : `Modification de ${product?.name}`}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                    {isSubmitting || mutation.isPending ? (
-                        <div className="flex items-center space-x-2 text-muted-foreground">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            <span className="text-sm">Sauvegarde...</span>
-                        </div>
-                    ) : (
-                        <Button
-                            type="submit"
-                            form="product-form"
-                            disabled={isSubmitting || mutation.isPending}
-                        >
-                            <Save className="h-4 w-4 mr-2" />
-                            {mode === "create" ? "Créer le produit" : "Mettre à jour"}
-                        </Button>
-                    )}
+            <div className="flex items-center space-x-4">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleCancel}
+                    disabled={isSubmitting || mutation.isPending}
+                >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Retour
+                </Button>
+                <div>
+                    <h1 className="text-3xl font-bold">
+                        {mode === "create" ? "Créer un nouveau produit" : "Modifier le produit"}
+                    </h1>
+                    <p className="text-muted-foreground mt-1">
+                        {mode === "create"
+                            ? "Ajoutez un nouveau produit à votre inventaire"
+                            : `Modification de ${product?.name}`}
+                    </p>
                 </div>
             </div>
 
@@ -188,7 +168,7 @@ export function ProductForm({
                     onSubmit={form.handleSubmit(handleSubmit, onError)}
                     className="space-y-6"
                 >
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Left Column - Basic Information */}
                         <Card>
                             <CardHeader>
@@ -246,17 +226,6 @@ export function ProductForm({
                                             { value: ProductCategory.ACCESSORY, label: "Accessoire" },
                                             { value: ProductCategory.COMPONENT, label: "Composant" },
                                         ],
-                                    }}
-                                    control={form.control}
-                                />
-
-                                <ProductFormField
-                                    config={{
-                                        name: "description",
-                                        label: "Description",
-                                        type: "textarea",
-                                        placeholder: "Description détaillée du produit...",
-                                        description: "Description optionnelle du produit",
                                     }}
                                     control={form.control}
                                 />
@@ -391,58 +360,96 @@ export function ProductForm({
                                 />
                             </CardContent>
                         </Card>
+                   
+                    {/* Additional Info and Images Section */}
+                    <div className="space-y-6">
+                        {/* Third Column - Additional Info */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Informations supplémentaires</CardTitle>
+                                <CardDescription>
+                                    Autres détails du produit
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <ProductFormField
+                                    config={{
+                                        name: "description",
+                                        label: "Description",
+                                        type: "textarea",
+                                        placeholder: "Description détaillée du produit...",
+                                        description: "Description optionnelle du produit",
+                                    }}
+                                    control={form.control}
+                                />
+                            </CardContent>
+                        </Card>
+
+                        {/* Image Upload Section */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Images du produit</CardTitle>
+                                <CardDescription>
+                                    Ajoutez des images pour présenter votre produit
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ImageUpload
+                                    value={images}
+                                    onChange={handleImageChange}
+                                    maxImages={5}
+                                    maxSizeMB={5}
+                                    disabled={isSubmitting || mutation.isPending}
+                                />
+                            </CardContent>
+                        </Card>
+                    </div>
+                     </div>
+
+
+                    {/* Form Actions - Fixed Bottom Right */}
+                    <div className="fixed bottom-6 right-6 z-50">
+                        <div className="bg-background border rounded-lg shadow-lg p-3 space-x-2 flex items-center">
+                            {isSubmitting || mutation.isPending ? (
+                                <div className="flex items-center space-x-2 text-muted-foreground pr-2">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <span className="text-sm">Sauvegarde...</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleCancel}
+                                        disabled={isSubmitting || mutation.isPending}
+                                    >
+                                        Annuler
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        size="sm"
+                                        disabled={isSubmitting || mutation.isPending}
+                                    >
+                                        {isSubmitting || mutation.isPending ? (
+                                            <>
+                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                {mode === "create" ? "Création..." : "Mise à jour..."}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Save className="h-4 w-4 mr-2" />
+                                                {mode === "create" ? "Créer" : "Mettre à jour"}
+                                            </>
+                                        )}
+                                    </Button>
+                                </>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Image Upload Section */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Images du produit</CardTitle>
-                            <CardDescription>
-                                Ajoutez des images pour présenter votre produit
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ImageUpload
-                                value={images}
-                                onChange={handleImageChange}
-                                maxImages={5}
-                                maxSizeMB={5}
-                                disabled={isSubmitting || mutation.isPending}
-                            />
-                        </CardContent>
-                    </Card>
-
-                    {/* Form Actions */}
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex justify-end space-x-4">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={handleCancel}
-                                    disabled={isSubmitting || mutation.isPending}
-                                >
-                                    Annuler
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={isSubmitting || mutation.isPending}
-                                >
-                                    {isSubmitting || mutation.isPending ? (
-                                        <>
-                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                            {mode === "create" ? "Création..." : "Mise à jour..."}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Save className="h-4 w-4 mr-2" />
-                                            {mode === "create" ? "Créer le produit" : "Mettre à jour"}
-                                        </>
-                                    )}
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    {/* Add padding at bottom to avoid content being hidden behind fixed buttons */}
+                    <div className="h-20"></div>
                 </form>
             </Form>
         </div>
